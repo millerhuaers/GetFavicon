@@ -88,8 +88,11 @@ function output_image($url, $host)
         header('Content-type: image/x-icon');
     }
 
-    $content = file_get_contents($url);
-    if (empty($content)) {
+    $content = @file_get_contents($url);
+    $statusLine = $http_response_header[0];
+    preg_match('{HTTP\/\S*\s(\d{3})}', $statusLine, $match);
+    $statusCode = $match[1] ?? null;
+    if (empty($content) || (!empty($statusCode) && !in_array($statusCode, [200, 301, 302]))) {
         output_default_image();
     }
 
